@@ -22,7 +22,8 @@
         <div class="col-lg-12 col-12 m-b-15">
             <div class="row">
                 <div class="col-lg-6 col-12">
-                    <a class="btn btn-secondary btn-sm" href="{{route('vehicles')}}"><i class="fa-solid fa-rotate"></i></a>
+                    <a class="btn btn-secondary btn-sm" href="{{route('vehicles')}}"><i
+                            class="fa-solid fa-rotate"></i></a>
                     <div class="dropdown d-inline">
                         <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton1"
                             data-bs-toggle="dropdown" aria-expanded="false">
@@ -70,11 +71,19 @@
                             <td>{{$item->brand->name}}</td>
                             <td>{{$item->number_plate}}</td>
                             <td class="text-center">
-                                <button class="btn btn-light text-success btn-sm" title="Eliminar"><i
-                                        class="fa-solid fa-pencil"></i> Editar</button>
-                                <button class="btn btn-light text-danger btn-sm" title="Eliminar"><i
-                                        class="fa-solid fa-trash-can"></i> Eliminar</button>
-                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip">
+                                <a href="{{route('vehicles_edit',['id'=>$item->id])}}"
+                                    class="btn btn-light text-success btn-sm" title="Eliminar"><i
+                                        class="fa-solid fa-pencil"></i> Editar</a>
+                                        <form action="{{ route('vehicles_delete', $item->id) }}" method="POST" >
+                                            @csrf
+                                            @method('delete')
+                                                                                
+                                            <button class="btn btn-light text-danger btn-sm delete" data-id="{{$item->id}}"
+                                                data-text="{{$item->name}}" type="submit" title="Eliminar"><i class="fa-solid fa-trash-can"></i>
+                                                Eliminar</a>
+                                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip">
+                                        </form>
+                               
                             </td>
                         </tr>
                         @endforeach
@@ -92,3 +101,48 @@
 
 </div>
 @endsection
+
+@section('js')
+<script>
+    // $(".delete").on("click", function(){
+
+    //     let val_id = $(this).attr('data-id');
+    //     let val_text = $(this).attr('data-text');
+    //     var token = $("meta[name='csrf-token']").attr("content");
+
+    //     swal({
+    //         title: "¿Estás seguro?",
+    //         text: "El registro "+val_text+" será eliminado!",
+    //         icon: "warning",
+    //         buttons: true,
+    //         buttons: ["Cancelar", "Eliminar !"],
+    //         dangerMode: true,
+    //         })
+    //         .then((willDelete) => {
+    //         if (willDelete) {
+
+    //             $.ajax({
+    //                 url: "vehiculos/delete/"+val_id,
+    //                 // type: 'DELETE',
+    //                 method: 'DELETE',
+    //                 dataType: "JSON",
+    //                 data: {
+    //                     "id": val_id,
+    //                     "_token": token,
+                        
+    //                 },
+    //                 headers: {
+    //                     'Content-Type': 'application/x-www-form-urlencoded',
+    //                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //                 },
+    //                 success: function ()
+    //                 {
+    //                     swal("El registro ha sido eliminado satisfactoriamente!", {icon: "success",});
+    //                 }
+    //             });   
+    //         }});
+
+    //         });
+    
+</script>
+@stop

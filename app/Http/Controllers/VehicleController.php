@@ -66,7 +66,76 @@ class VehicleController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json($e->getMessage(), 400);
+            return back()
+                    ->withErrors($e->getMessage())
+                    ->withInput();
         }
+    }
+
+    public function edit($id)
+    {
+        $is_create = false;
+        $item = $this->vehicle->findOrFail($id);
+        $brands = $categories = $this->brand->all();
+        return view("webapp.vehicle.form", compact('is_create','item', 'brands'));
+    }
+
+    public function updated(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $data = $request->all();
+            dd($data);
+
+            // //validation data
+            // $validator = Validator::make($request->all(), [
+            //     'name' => 'required|max:255',
+            //     'number_plate' => 'required|max:20',
+            //     'brand_id' => 'required',
+            // ]);
+
+            // if ($validator->fails()) {
+            //     return back()
+            //         ->withErrors($validator)
+            //         ->withInput();
+            // }
+
+            // //save data
+            // $item = $this->vehicle;
+            // $item->name = $data['name'];
+            // $item->brand_id = $data['brand_id'];
+            // $item->number_plate = $data['number_plate'];
+            // $item->features = $data['features'];
+            // $item->save();
+           
+
+            // DB::commit();
+            // return redirect()->route('vehicles')->with('message', 'Registro realizado con éxito.');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()
+                    ->withErrors($e->getMessage())
+                    ->withInput();
+        }
+    }
+
+    public function destroy($id){
+
+        try {
+            $this->vehicle->delete($id);
+            $response = array(
+                'status' => 'success'
+            );
+            return redirect()->route('vehicles')->with('message', 'Registro eliminado con éxito.');
+            // return response()->json($response);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()
+                    ->withErrors($e->getMessage())
+                    ->withInput();
+        }
+
     }
 }

@@ -31,33 +31,80 @@
 <div class="col-lg-12 col-md-12 col-12">
     <div class="card">
         <div class="card-body">
+            @if($is_create)
             <form action="{{route('vehicles_save')}}" method="post" class="row">
                 {!! csrf_field() !!}
                 <div class="mb-3 col-lg-6">
                     <label>Nombre <span class="required">*</span></label>
-                    <input type="text" name="name" value="{{ old('name') }}" class="form-control" maxlength="255" required autofocus>
+                    <input type="text" name="name" value="{{ old('name') }}" class="form-control" maxlength="255"
+                        required autofocus>
                 </div>
                 <div class="mb-3 col-lg-3">
                     <label>Número placa <span class="required">*</span></label>
-                    <input type="text" name="number_plate" value="{{ old('number_plate') }}" class="form-control" maxlength="20" required>
+                    <input type="text" name="number_plate" value="{{ old('number_plate') }}" class="form-control"
+                        maxlength="20" required>
                 </div>
                 <div class="mb-3 col-lg-3">
                     <label>Seleccione marca <span class="required">*</span></label>
                     <select class="form-select" name="brand_id">
                         @foreach($brands as $brand)
-                        <option value="{{$brand->id}}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>{{$brand->name}}</option>
+                        <option value="{{$brand->id}}" {{ old('brand_id')==$brand->id ? 'selected' : ''
+                            }}>{{$brand->name}}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="mb-3 col-lg-6">
                     <label>Caracteristicas </label>
-                    <textarea class="form-control" name="features" value="{{ old('features') }}" rows="2" style="resize: none;"></textarea>
+                    <textarea class="form-control" name="features" value="{{ old('features') }}" rows="2"
+                        style="resize: none;"></textarea>
                 </div>
                 <div class="col-lg-12 text-right" style="margin-top: 30px">
                     <a class="btn btn-secondary" href="{{route('vehicles')}}">Cancelar</a>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </form>
+            @else
+            <form action="{{route('vehicles_updated',['id'=>$item->id])}}" method="post" class="row">
+                {!! csrf_field() !!}
+                <div class="mb-3 col-lg-6">
+                    <label>Nombre <span class="required">*</span></label>
+                    <input type="text" name="name" value="{{ $item->name }}" class="form-control" maxlength="255"
+                        required autofocus>
+                </div>
+                <div class="mb-3 col-lg-3">
+                    <label>Número placa <span class="required">*</span></label>
+                    <input type="text" name="number_plate" value="{{ $item->number_plate }}" class="form-control"
+                        maxlength="20" required>
+                </div>
+                <div class="mb-3 col-lg-3">
+                    <label>Seleccione marca <span class="required">*</span></label>
+                    <select class="form-select" name="brand_id">
+                        @foreach($brands as $brand)
+                            @if($brand->id == $item->brand_id)
+                                <option value="{{$brand->id}}" selected>{{$brand->name}}</option>
+                            @else
+                                <option value="{{$brand->id}}">{{$brand->name}}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3 col-lg-6">
+                    <label>Caracteristicas </label>
+                    <textarea class="form-control" name="features" value="{{ old('features') }}" rows="2"
+                        style="resize: none;"></textarea>
+                </div>
+                <div class="col-lg-12 text-right" style="margin-top: 30px">
+                    <a class="btn btn-secondary" href="{{route('vehicles')}}">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">
+                        @if($is_create)
+                        <span>Guardar</span>
+                        @else
+                        <span>Guardar cambios</span>
+                        @endif
+                    </button>
+                </div>
+            </form>
+            @endif
 
         </div>
     </div>
