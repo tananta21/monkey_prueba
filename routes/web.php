@@ -27,3 +27,5 @@ Route::post('/vehiculos/save',[VehicleController::class, 'save'])->name("vehicle
 Route::get('/vehiculos/editar/{id}', [VehicleController::class, 'edit'])->name('vehicles_edit');
 Route::post('/vehiculos/updated/{id}', [VehicleController::class, 'updated'])->name('vehicles_updated');
 Route::delete('/vehiculos/delete/{id}', [VehicleController::class, 'destroy'])->name('vehicles_delete');
+
+Route::get('/vehiculos/pdf', [VehicleController::class, 'generatePdf'])->name('vehicles_pdf');

@@ -21,24 +21,43 @@
     <div class="row">
         <div class="col-lg-12 col-12 m-b-15">
             <div class="row">
-                <div class="col-lg-6 col-12">
-                    <a class="btn btn-secondary btn-sm" href="{{route('vehicles')}}"><i
-                            class="fa-solid fa-rotate"></i></a>
-                    <div class="dropdown d-inline">
+                <div class="col-lg-5 col-12">
+                    <a class="btn btn-secondary btn-sm" style="margin-right: 5px" href="{{route('vehicles')}}"
+                        type="button"><i class="fa-solid fa-rotate"></i></a>
+                    <div class="dropdown d-inline" style="margin-right: 5px">
                         <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton1"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             Acciones
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li><a class="dropdown-item" href="#">Exportar Pdf</a></li>
+                            <li><a class="dropdown-item" target="_blank" href="{{route('vehicles_pdf')}}"><i class="fa-solid fa-file-pdf"></i> Exportar en Pdf </a></li>
                         </ul>
                     </div>
+                    <div class="input-group input-group-sm" style="display:inline-flex; width: auto;">
+                        <label class="input-group-text">Marcas</label>
+                        <select class="form-select form-control form-control-sm d-inline brand_select" id="brand_select" name="brand_id" style="width: auto">
+                            <option value="" selected>Seleccionar todos</option>
+                            @foreach($brands as $brand)
+                                @if($brand->id == $brand_id)
+                                    <option value="{{$brand->id}}" selected>{{$brand->name}}</option>
+                                @else
+                                    <option value="{{$brand->id}}">{{$brand->name}}</option>
+                                @endif
+                            {{-- <option value="{{$brand->id}}">{{$brand->name}}</option> --}}
+                            @endforeach
+                        </select>
+                    </div>
+
                 </div>
-                <div class="col-lg-6 col-12">
-                    <form action="">
+                <div class="col-lg-7 col-12">
+                    <form action="" method="GET">
                         <div class="input-group">
-                            <input type="text" class="form-control form-control-sm" placeholder="Escriba para buscar">
-                            <button class="btn btn-outline-primary btn-sm" type="button">Buscar</button>
+                            <a class="btn btn-outline-secondary btn-sm" href="{{route('vehicles')}}" type="button"><i
+                                    class="fa-solid fa-broom"></i></a>
+                            <input type="text" class="form-control form-control-sm" name="search"
+                                value="{{ old('search') }}" placeholder="Escriba para buscar" required>
+                            <button class="btn btn-outline-primary btn-sm" type="submit"><i
+                                    class="fa-solid fa-magnifying-glass"></i> Buscar</button>
                         </div>
                     </form>
                 </div>
@@ -74,16 +93,22 @@
                                 <a href="{{route('vehicles_edit',['id'=>$item->id])}}"
                                     class="btn btn-light text-success btn-sm" title="Eliminar"><i
                                         class="fa-solid fa-pencil"></i> Editar</a>
-                                        <form action="{{ route('vehicles_delete', $item->id) }}" method="POST" >
+                                <button class="btn btn-light text-danger btn-sm delete" data-id="{{$item->id}}"
+                                    data-text="{{$item->name}}" type="submit" title="Eliminar"><i
+                                        class="fa-solid fa-trash-can"></i>
+                                    Eliminar</a>
+                                    <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip">
+                                        {{-- <form action="{{ route('vehicles_delete', $item->id) }}" method="POST">
                                             @csrf
                                             @method('delete')
-                                                                                
-                                            <button class="btn btn-light text-danger btn-sm delete" data-id="{{$item->id}}"
-                                                data-text="{{$item->name}}" type="submit" title="Eliminar"><i class="fa-solid fa-trash-can"></i>
+
+                                            <button class="btn btn-light text-danger btn-sm delete"
+                                                data-id="{{$item->id}}" data-text="{{$item->name}}" type="submit"
+                                                title="Eliminar"><i class="fa-solid fa-trash-can"></i>
                                                 Eliminar</a>
                                                 <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip">
-                                        </form>
-                               
+                                        </form> --}}
+
                             </td>
                         </tr>
                         @endforeach
@@ -103,46 +128,60 @@
 @endsection
 
 @section('js')
+
 <script>
-    // $(".delete").on("click", function(){
+    $(document).ready(function(){
+    $(".brand_select").change(function(){
+        // alert("The text has been changed.");
+        // console.log("hrwerwerwe " + $("#brand_select").val());
+        let val_brand_id = $("#brand_select").val();
+        if(val_brand_id !== ""){
+            window.location.replace("/vehiculos?brand="+val_brand_id);
+        }
+        else{
+            window.location.replace("/vehiculos");
+        }        
+    });
 
-    //     let val_id = $(this).attr('data-id');
-    //     let val_text = $(this).attr('data-text');
-    //     var token = $("meta[name='csrf-token']").attr("content");
 
-    //     swal({
-    //         title: "¿Estás seguro?",
-    //         text: "El registro "+val_text+" será eliminado!",
-    //         icon: "warning",
-    //         buttons: true,
-    //         buttons: ["Cancelar", "Eliminar !"],
-    //         dangerMode: true,
-    //         })
-    //         .then((willDelete) => {
-    //         if (willDelete) {
+    $(".delete").on("click", function(){
+        let val_id = $(this).attr('data-id');
+        let val_text = $(this).attr('data-text');
+        var token = $("meta[name='csrf-token']").attr("content");
 
-    //             $.ajax({
-    //                 url: "vehiculos/delete/"+val_id,
-    //                 // type: 'DELETE',
-    //                 method: 'DELETE',
-    //                 dataType: "JSON",
-    //                 data: {
-    //                     "id": val_id,
-    //                     "_token": token,
-                        
-    //                 },
-    //                 headers: {
-    //                     'Content-Type': 'application/x-www-form-urlencoded',
-    //                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    //                 },
-    //                 success: function ()
-    //                 {
-    //                     swal("El registro ha sido eliminado satisfactoriamente!", {icon: "success",});
-    //                 }
-    //             });   
-    //         }});
-
-    //         });
+        swal({
+            title: "¿Estás seguro?",
+            text: "El registro "+val_text+" será eliminado!",
+            icon: "warning",
+            buttons: true,
+            buttons: ["Cancelar", "Eliminar !"],
+            dangerMode: true,
+            }).then((willDelete) => {
+            if (willDelete) {
+                $.ajax({
+                    url: '/vehiculos/delete/'+val_id,
+                    type: 'POST',
+                    data:{
+                    '_token': token,
+                    '_method': 'DELETE',
+                    },
+                    success: function(result) {
+                        swal("Muy bien!", "Registro eliminado con éxito!", "success");
+                        setTimeout(function() { 
+                            $(this).attr('disabled', false);
+                            window.location.replace("/vehiculos");
+                        }, 500);                       
+                    },
+                    error: function (request, status, error) {
+                        console.log(error);            
+                    }});
+            }})
+        });
+  });
     
+    
+    
+
+
 </script>
 @stop

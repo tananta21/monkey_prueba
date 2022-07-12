@@ -7,6 +7,7 @@ use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Date;
 
 class VehicleController extends Controller
 {
@@ -20,16 +21,31 @@ class VehicleController extends Controller
         $this->brand = new Brand();
 
     }
-    public function vehicles()
+    public function vehicles(Request $request)
     {
-        $items = $this->vehicle->orderby("id", "DESC")->paginate(2);
+        $parameters = $request->all();
+        $search = $request->has('search') ? $request->get('search') : '';
+        $brand_id = $request->has('brand') ? $request->get('brand') : '';
 
-        return view("webapp.vehicles", compact("items"));
+        $items = $this->vehicle
+        ->where('name', 'LIKE', '%' . $request->get("search") . '%')
+        ->where("deleted_at", null)
+        ->orderby("id", "DESC");
+
+        
+        if (isset($parameters["brand"])) {            
+            $items = $items->where('brand_id', $brand_id);
+        }
+
+        $items = $items->paginate(2);
+        $brands = $this->brand->all();
+
+        return view("webapp.vehicles", compact("items", "brands", "brand_id"));
     }
     public function create()
     {
         $is_create = true;
-        $brands = $categories = $this->brand->all();
+        $brands = $this->brand->all();
         return view('webapp.vehicle.form', compact('is_create', 'brands'));
     }
 
@@ -80,37 +96,35 @@ class VehicleController extends Controller
         return view("webapp.vehicle.form", compact('is_create','item', 'brands'));
     }
 
-    public function updated(Request $request)
+    public function updated(Request $request, $id)
     {
         DB::beginTransaction();
         try {
             $data = $request->all();
-            dd($data);
 
-            // //validation data
-            // $validator = Validator::make($request->all(), [
-            //     'name' => 'required|max:255',
-            //     'number_plate' => 'required|max:20',
-            //     'brand_id' => 'required',
-            // ]);
+            //validation data
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|max:255',
+                'number_plate' => 'required|max:20',
+                'brand_id' => 'required',
+            ]);
 
-            // if ($validator->fails()) {
-            //     return back()
-            //         ->withErrors($validator)
-            //         ->withInput();
-            // }
+            if ($validator->fails()) {
+                return back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
 
-            // //save data
-            // $item = $this->vehicle;
-            // $item->name = $data['name'];
-            // $item->brand_id = $data['brand_id'];
-            // $item->number_plate = $data['number_plate'];
-            // $item->features = $data['features'];
-            // $item->save();
+            //updated data
+            $item = $this->vehicle->findOrFail($id);
+            $item->name = $data['name'];
+            $item->brand_id = $data['brand_id'];
+            $item->number_plate = $data['number_plate'];
+            $item->features = $data['features'];
+            $item->save();
            
-
-            // DB::commit();
-            // return redirect()->route('vehicles')->with('message', 'Registro realizado con éxito.');
+            DB::commit();
+            return redirect()->route('vehicles')->with('message', 'Registro actualizado con éxito.');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -123,19 +137,40 @@ class VehicleController extends Controller
     public function destroy($id){
 
         try {
-            $this->vehicle->delete($id);
+            // get obj
+            $vehicle = $this->vehicle->find($id);
+            // ======= borrado ORM
+            // $vehicle->delete();
+
+            // habitualmente aplico el borrado lógico | se puede modificar el core para todos los modelos
+            $time = Date::now();
+            $vehicle->deleted_at = $time;
+            $vehicle->save();
+
             $response = array(
                 'status' => 'success'
             );
-            return redirect()->route('vehicles')->with('message', 'Registro eliminado con éxito.');
-            // return response()->json($response);
+            
+            return response()->json($response);
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()
-                    ->withErrors($e->getMessage())
-                    ->withInput();
+            return response()->json($e->getMessage());
         }
+
+    }
+
+    public function generatePDf(){
+
+        $title = "Exportar Vehiculos";
+        $items = $this->vehicle
+        ->where("deleted_at", null)
+        ->get();
+
+        $pdf = \PDFD::loadView('pdf.vehicles', compact("title", "items"));
+        return $pdf->stream("", array('Attachment'=>0));
+    
+        // return $pdf->download('sample.pdf');
 
     }
 }
