@@ -19,6 +19,7 @@ class CreateVehicles extends Migration
             $table->string('name');
             $table->string('number_plate', 20)->nullable();
             $table->text('features')->nullable();
+            $table->string('image')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

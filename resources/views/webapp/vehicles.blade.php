@@ -43,7 +43,6 @@
                                 @else
                                     <option value="{{$brand->id}}">{{$brand->name}}</option>
                                 @endif
-                            {{-- <option value="{{$brand->id}}">{{$brand->name}}</option> --}}
                             @endforeach
                         </select>
                     </div>
@@ -64,12 +63,13 @@
             </div>
 
         </div>
-        <div class="col-12">
+        <div class="col-12" style="margin-bottom: 100px">
             <div class="table-responsive">
                 <table class="table">
                     <thead class="table-light">
                         <tr>
                             <th scope="col">#</th>
+                            <th scope="col">Image</th>
                             <th scope="col">Nombre</th>
                             <th scope="col">Marca</th>
                             <th scope="col">N° placa</th>
@@ -85,7 +85,16 @@
 
                         @foreach($items as $item)
                         <tr>
-                            <th scope="row">{{$item->id}}</th>
+                            <td>{{$item->id}}</th>
+                            <td>
+                                @if($item->image !== null)
+                                    <figure>
+                                        <img height="30" width="50" src="{{ asset("/images/".$item->image) }}" alt="{{$item->image}}"/>
+                                    </figure>
+                                @else
+                                    -
+                                @endif
+                            </th>                           
                             <td>{{$item->name}}</td>
                             <td>{{$item->brand->name}}</td>
                             <td>{{$item->number_plate}}</td>
